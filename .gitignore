@@ -1,0 +1,13 @@
+/vendor/
+/node_modules/
+/.phpunit.cache/
+.env
+.env.local
+.env.testing
+composer.lock
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
+*.cache
