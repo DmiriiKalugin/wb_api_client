@@ -65,7 +65,13 @@ class WildberriesClient implements WildberriesClientInterface
     }
 
     /**
+     * @param string $endpoint
+     * @param array $params
+     * @return array
      * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function get(string $endpoint, array $params = []): array
     {
@@ -79,6 +85,9 @@ class WildberriesClient implements WildberriesClientInterface
      * @param array $data
      * @return array
      * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function post(string $endpoint, array $data = []): array
     {
@@ -117,6 +126,9 @@ class WildberriesClient implements WildberriesClientInterface
      * @param string $service
      * @return array
      * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function ping(string $service = 'common'): array
     {

@@ -133,7 +133,7 @@ class WildberriesApiService
      */
     public function getCards(array $params = []): array
     {
-        return $this->client->requestToService('content', 'POST', '/content/v2/get/cards/list', ['query' => $params]);
+        return $this->client->requestToService('content', 'POST', '/content/v2/get/cards/list', $params);
     }
 
     /**
