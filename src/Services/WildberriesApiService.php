@@ -3,18 +3,27 @@
 namespace DmitrijKalugin\WildberriesApiClient\Services;
 
 use DmitrijKalugin\WildberriesApiClient\Contracts\WildberriesClientInterface;
+use DmitrijKalugin\WildberriesApiClient\Exceptions\AuthenticationException;
+use DmitrijKalugin\WildberriesApiClient\Exceptions\RateLimitException;
+use DmitrijKalugin\WildberriesApiClient\Exceptions\WildberriesApiException;
+use GuzzleHttp\Exception\GuzzleException;
 
 class WildberriesApiService
 {
     protected WildberriesClientInterface $client;
 
+    /**
+     * @param WildberriesClientInterface $client
+     * @return void
+     */
     public function __construct(WildberriesClientInterface $client)
     {
         $this->client = $client;
     }
 
     /**
-     * Set API token
+     * @param string $token
+     * @return $this
      */
     public function setToken(string $token): self
     {
@@ -23,7 +32,7 @@ class WildberriesApiService
     }
 
     /**
-     * Get current API token
+     * @return string|null
      */
     public function getToken(): ?string
     {
@@ -31,7 +40,8 @@ class WildberriesApiService
     }
 
     /**
-     * Check API connection
+     * @param string $service
+     * @return array
      */
     public function ping(string $service = 'common'): array
     {
@@ -39,7 +49,7 @@ class WildberriesApiService
     }
 
     /**
-     * Get seller information
+     * @return array
      */
     public function getSellerInfo(): array
     {
@@ -47,7 +57,8 @@ class WildberriesApiService
     }
 
     /**
-     * Get news from seller portal
+     * @param array $params
+     * @return array
      */
     public function getNews(array $params = []): array
     {
@@ -55,7 +66,9 @@ class WildberriesApiService
     }
 
     /**
-     * Make a GET request
+     * @param string $endpoint
+     * @param array $params
+     * @return array
      */
     public function get(string $endpoint, array $params = []): array
     {
@@ -63,7 +76,9 @@ class WildberriesApiService
     }
 
     /**
-     * Make a POST request
+     * @param string $endpoint
+     * @param array $data
+     * @return array
      */
     public function post(string $endpoint, array $data = []): array
     {
@@ -71,7 +86,9 @@ class WildberriesApiService
     }
 
     /**
-     * Make a PUT request
+     * @param string $endpoint
+     * @param array $data
+     * @return array
      */
     public function put(string $endpoint, array $data = []): array
     {
@@ -79,7 +96,9 @@ class WildberriesApiService
     }
 
     /**
-     * Make a DELETE request
+     * @param string $endpoint
+     * @param array $data
+     * @return array
      */
     public function delete(string $endpoint, array $data = []): array
     {
@@ -87,7 +106,15 @@ class WildberriesApiService
     }
 
     /**
-     * Make request to specific service
+     * @param string $service
+     * @param string $method
+     * @param string $endpoint
+     * @param array $options
+     * @return array
+     * @throws AuthenticationException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
+     * @throws GuzzleException
      */
     public function requestToService(string $service, string $method, string $endpoint, array $options = []): array
     {
@@ -97,19 +124,25 @@ class WildberriesApiService
     // Specific API methods based on Wildberries API documentation
 
     /**
-     * Content API Methods
-     */
-
-    /**
-     * Get product cards list
+     * @param array $params
+     * @return array
+     * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function getCards(array $params = []): array
     {
-        return $this->client->requestToService('content', 'GET', '/content/v2/get/cards/list', ['query' => $params]);
+        return $this->client->requestToService('content', 'POST', '/content/v2/get/cards/list', ['query' => $params]);
     }
 
     /**
-     * Update product cards
+     * @param array $cards
+     * @return array
+     * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function updateCards(array $cards): array
     {
@@ -117,7 +150,12 @@ class WildberriesApiService
     }
 
     /**
-     * Get product media files
+     * @param int $nmId
+     * @return array
+     * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function getMediaFiles(int $nmId): array
     {
@@ -129,7 +167,11 @@ class WildberriesApiService
      */
 
     /**
-     * Get warehouses list
+     * @return array
+     * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function getWarehouses(): array
     {
@@ -137,7 +179,12 @@ class WildberriesApiService
     }
 
     /**
-     * Get orders
+     * @param array $params
+     * @return array
+     * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function getOrders(array $params = []): array
     {
@@ -145,7 +192,12 @@ class WildberriesApiService
     }
 
     /**
-     * Get stocks
+     * @param array $params
+     * @return array
+     * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function getStocks(array $params = []): array
     {
@@ -153,7 +205,12 @@ class WildberriesApiService
     }
 
     /**
-     * Update stocks
+     * @param array $stocks
+     * @return array
+     * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function updateStocks(array $stocks): array
     {
@@ -165,7 +222,12 @@ class WildberriesApiService
      */
 
     /**
-     * Get income statistics
+     * @param array $params
+     * @return array
+     * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function getIncomes(array $params = []): array
     {
@@ -173,7 +235,12 @@ class WildberriesApiService
     }
 
     /**
-     * Get sales statistics
+     * @param array $params
+     * @return array
+     * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function getSales(array $params = []): array
     {
@@ -181,7 +248,12 @@ class WildberriesApiService
     }
 
     /**
-     * Get stock statistics
+     * @param array $params
+     * @return array
+     * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function getStockStatistics(array $params = []): array
     {
@@ -193,7 +265,11 @@ class WildberriesApiService
      */
 
     /**
-     * Get advertising campaigns
+     * @return array
+     * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function getAdvertCampaigns(): array
     {
@@ -205,7 +281,12 @@ class WildberriesApiService
      */
 
     /**
-     * Get feedbacks
+     * @param array $params
+     * @return array
+     * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function getFeedbacks(array $params = []): array
     {
@@ -217,7 +298,12 @@ class WildberriesApiService
      */
 
     /**
-     * Get finance reports
+     * @param array $params
+     * @return array
+     * @throws AuthenticationException
+     * @throws GuzzleException
+     * @throws RateLimitException
+     * @throws WildberriesApiException
      */
     public function getFinanceReports(array $params = []): array
     {

@@ -40,24 +40,6 @@ WILDBERRIES_LOGGING=false
 
 ## Быстрый старт
 
-### Использование через Facade
-
-```php
-use DmitrijKalugin\WildberriesApiClient\Facades\Wildberries;
-
-// Проверка соединения
-$ping = Wildberries::ping();
-
-// Получение информации о продавце
-$sellerInfo = Wildberries::getSellerInfo();
-
-// Получение новостей
-$news = Wildberries::getNews(['from' => '2024-01-01']);
-
-// Получение товаров
-$cards = Wildberries::getCards(['limit' => 100]);
-```
-
 ### Использование через Dependency Injection
 
 ```php
@@ -89,15 +71,15 @@ Wildberries::setToken('your_new_token')->getSellerInfo();
 
 ```php
 // Проверка соединения с различными сервисами
-Wildberries::ping('common');     // common-api
-Wildberries::ping('content');    // content-api
-Wildberries::ping('marketplace'); // marketplace-api
+WildberriesApiService::ping('common');     // common-api
+WildberriesApiService::ping('content');    // content-api
+WildberriesApiService::ping('marketplace'); // marketplace-api
 
 // Информация о продавце
-Wildberries::getSellerInfo();
+WildberriesApiService::getSellerInfo();
 
 // Новости портала продавцов
-Wildberries::getNews([
+WildberriesApiService::getNews([
     'from' => '2024-01-01',        // Дата от
     'fromID' => 7369               // ID новости от
 ]);
@@ -107,13 +89,13 @@ Wildberries::getNews([
 
 ```php
 // Получение списка карточек товаров
-$cards = Wildberries::getCards([
+$cards = WildberriesApiService::getCards([
     'limit' => 100,
     'offset' => 0
 ]);
 
 // Обновление карточек товаров
-$updateResult = Wildberries::updateCards([
+$updateResult = WildberriesApiService::updateCards([
     [
         'nmID' => 123456,
         'title' => 'Новое название товара',
@@ -122,28 +104,28 @@ $updateResult = Wildberries::updateCards([
 ]);
 
 // Получение медиафайлов товара
-$media = Wildberries::getMediaFiles(123456);
+$media = WildberriesApiService::getMediaFiles(123456);
 ```
 
 ### Marketplace API - Заказы и остатки
 
 ```php
 // Получение списка складов
-$warehouses = Wildberries::getWarehouses();
+$warehouses = WildberriesApiService::getWarehouses();
 
 // Получение заказов
-$orders = Wildberries::getOrders([
+$orders = WildberriesApiService::getOrders([
     'dateFrom' => '2024-01-01',
     'dateTo' => '2024-01-31'
 ]);
 
 // Получение остатков
-$stocks = Wildberries::getStocks([
+$stocks = WildberriesApiService::getStocks([
     'dateFrom' => '2024-01-01'
 ]);
 
 // Обновление остатков
-$stocksUpdate = Wildberries::updateStocks([
+$stocksUpdate = WildberriesApiService::updateStocks([
     [
         'sku' => 'SKU123',
         'amount' => 10,
@@ -156,18 +138,18 @@ $stocksUpdate = Wildberries::updateStocks([
 
 ```php
 // Статистика поставок
-$incomes = Wildberries::getIncomes([
+$incomes = WildberriesApiService::getIncomes([
     'dateFrom' => '2024-01-01'
 ]);
 
 // Статистика продаж
-$sales = Wildberries::getSales([
+$sales = WildberriesApiService::getSales([
     'dateFrom' => '2024-01-01',
     'flag' => 0
 ]);
 
 // Остатки товаров
-$stockStats = Wildberries::getStockStatistics([
+$stockStats = WildberriesApiService::getStockStatistics([
     'dateFrom' => '2024-01-01'
 ]);
 ```
@@ -176,14 +158,14 @@ $stockStats = Wildberries::getStockStatistics([
 
 ```php
 // Получение рекламных кампаний
-$campaigns = Wildberries::getAdvertCampaigns();
+$campaigns = WildberriesApiService::getAdvertCampaigns();
 ```
 
 ### Feedbacks API - Отзывы
 
 ```php
 // Получение отзывов
-$feedbacks = Wildberries::getFeedbacks([
+$feedbacks = WildberriesApiService::getFeedbacks([
     'isAnswered' => false,
     'take' => 100,
     'skip' => 0
@@ -194,7 +176,7 @@ $feedbacks = Wildberries::getFeedbacks([
 
 ```php
 // Получение финансовых отчетов
-$reports = Wildberries::getFinanceReports([
+$reports = WildberriesApiService::getFinanceReports([
     'dateFrom' => '2024-01-01',
     'dateTo' => '2024-01-31'
 ]);
@@ -206,13 +188,13 @@ $reports = Wildberries::getFinanceReports([
 
 ```php
 // GET запрос
-$response = Wildberries::get('/api/endpoint', ['param' => 'value']);
+$response = WildberriesApiService::get('/api/endpoint', ['param' => 'value']);
 
 // POST запрос
-$response = Wildberries::post('/api/endpoint', ['data' => 'value']);
+$response = WildberriesApiService::post('/api/endpoint', ['data' => 'value']);
 
 // Запрос к конкретному сервису
-$response = Wildberries::requestToService(
+$response = WildberriesApiService::requestToService(
     'content',           // сервис
     'GET',              // метод
     '/content/v2/cards', // endpoint
@@ -230,7 +212,7 @@ use DmitrijKalugin\WildberriesApiClient\Exceptions\RateLimitException;
 use DmitrijKalugin\WildberriesApiClient\Exceptions\WildberriesApiException;
 
 try {
-    $result = Wildberries::getSellerInfo();
+    $result = WildberriesApiService::getSellerInfo();
 } catch (AuthenticationException $e) {
     // Ошибка авторизации (401)
     logger()->error('WB Auth Error: ' . $e->getMessage());
@@ -307,7 +289,7 @@ WILDBERRIES_SANDBOX=true
 ### Автоматическое обновление остатков
 
 ```php
-use DmitrijKalugin\WildberriesApiClient\Facades\Wildberries;
+use DmitrijKalugin\WildberriesApiClient\Services\WildberriesApiService;
 
 class StockUpdater
 {
@@ -324,7 +306,7 @@ class StockUpdater
         }
         
         try {
-            $result = Wildberries::updateStocks($stocks);
+            $result = WildberriesApiService::updateStocks($stocks);
             logger()->info('Stocks updated successfully', $result);
         } catch (\Exception $e) {
             logger()->error('Failed to update stocks: ' . $e->getMessage());
@@ -342,7 +324,7 @@ class OrderSynchronizer
     public function syncOrders(string $dateFrom, string $dateTo)
     {
         try {
-            $orders = Wildberries::getOrders([
+            $orders = WildberriesApiService::getOrders([
                 'dateFrom' => $dateFrom,
                 'dateTo' => $dateTo
             ]);

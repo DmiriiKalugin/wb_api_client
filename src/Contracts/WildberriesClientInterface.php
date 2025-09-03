@@ -5,37 +5,47 @@ namespace DmitrijKalugin\WildberriesApiClient\Contracts;
 interface WildberriesClientInterface
 {
     /**
-     * Set API token for authentication
+     * @param string $token
+     * @return self
      */
     public function setToken(string $token): self;
 
     /**
-     * Get current API token
+     * @return string|null
      */
     public function getToken(): ?string;
 
     /**
-     * Make GET request to API
+     * @param string $endpoint
+     * @param array $params
+     * @return array
      */
     public function get(string $endpoint, array $params = []): array;
 
     /**
-     * Make POST request to API
+     * @param string $endpoint
+     * @param array $data
+     * @return array
      */
     public function post(string $endpoint, array $data = []): array;
 
     /**
-     * Make PUT request to API
+     * @param string $endpoint
+     * @param array $data
+     * @return array
      */
     public function put(string $endpoint, array $data = []): array;
 
     /**
-     * Make DELETE request to API
+     * @param string $endpoint
+     * @param array $data
+     * @return array
      */
     public function delete(string $endpoint, array $data = []): array;
 
     /**
-     * Check API connection
+     * @param string $service
+     * @return array
      */
     public function ping(string $service = 'common'): array;
 }

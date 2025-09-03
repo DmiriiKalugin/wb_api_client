@@ -10,7 +10,7 @@ use DmitrijKalugin\WildberriesApiClient\Services\WildberriesApiService;
 class WildberriesServiceProvider extends ServiceProvider
 {
     /**
-     * Register services.
+     * @return void
      */
     public function register(): void
     {
@@ -46,7 +46,7 @@ class WildberriesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap services.
+     * @return void
      */
     public function boot(): void
     {
@@ -62,7 +62,7 @@ class WildberriesServiceProvider extends ServiceProvider
     }
 
     /**
-     * Get the services provided by the provider.
+     * @return string[]
      */
     public function provides(): array
     {
