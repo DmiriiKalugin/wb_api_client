@@ -48,4 +48,13 @@ interface WildberriesClientInterface
      * @return array
      */
     public function ping(string $service = 'common'): array;
+
+    /**
+     * @param string $service
+     * @param string $method
+     * @param string $endpoint
+     * @param array $options
+     * @return array
+     */
+    public function requestToService(string $service, string $method, string $endpoint, array $options = []): array;
 }

@@ -3,10 +3,6 @@
 namespace DmitrijKalugin\WildberriesApiClient\Services;
 
 use DmitrijKalugin\WildberriesApiClient\Contracts\WildberriesClientInterface;
-use DmitrijKalugin\WildberriesApiClient\Exceptions\AuthenticationException;
-use DmitrijKalugin\WildberriesApiClient\Exceptions\RateLimitException;
-use DmitrijKalugin\WildberriesApiClient\Exceptions\WildberriesApiException;
-use GuzzleHttp\Exception\GuzzleException;
 
 class WildberriesApiService
 {
@@ -111,10 +107,6 @@ class WildberriesApiService
      * @param string $endpoint
      * @param array $options
      * @return array
-     * @throws AuthenticationException
-     * @throws RateLimitException
-     * @throws WildberriesApiException
-     * @throws GuzzleException
      */
     public function requestToService(string $service, string $method, string $endpoint, array $options = []): array
     {
@@ -124,25 +116,67 @@ class WildberriesApiService
     // Specific API methods based on Wildberries API documentation
 
     /**
-     * @param array $params
+     * Получение списка карточек товаров с поддержкой пагинации
+     *
+     * @param array $settings Настройки запроса включая cursor и filter
+     * @param bool $getAllPages Получить все страницы автоматически (по умолчанию false)
      * @return array
-     * @throws AuthenticationException
-     * @throws GuzzleException
-     * @throws RateLimitException
-     * @throws WildberriesApiException
      */
-    public function getCards(array $params = []): array
+    public function getCards(array $settings = [], bool $getAllPages = false): array
     {
-        return $this->client->requestToService('content', 'POST', '/content/v2/get/cards/list', $params);
+        $defaultSettings = [
+            'cursor' => [
+                'limit' => 100
+            ],
+            'filter' => [
+                'withPhoto' => -1
+            ]
+        ];
+
+        $requestSettings = array_merge_recursive($defaultSettings, $settings);
+
+        $payload = [
+            'settings' => $requestSettings
+        ];
+
+        if (!$getAllPages) {
+            return $this->client->requestToService('content', 'POST', '/content/v2/get/cards/list', ['json' => $payload]);
+        }
+
+        $allCards = [];
+        $totalReceived = 0;
+
+        do {
+            $response = $this->client->requestToService('content', 'POST', '/content/v2/get/cards/list', ['json' => $payload]);
+
+            if (isset($response['data']) && is_array($response['data'])) {
+                $allCards = array_merge($allCards, $response['data']);
+                $totalReceived += count($response['data']);
+            }
+
+            if (isset($response['cursor']['updatedAt']) && isset($response['cursor']['nmID'])) {
+                $payload['settings']['cursor']['updatedAt'] = $response['cursor']['updatedAt'];
+                $payload['settings']['cursor']['nmID'] = $response['cursor']['nmID'];
+            } else {
+                break;
+            }
+
+            $total = $response['total'] ?? 0;
+
+        } while ($total >= $requestSettings['cursor']['limit']);
+
+        return [
+            'data' => $allCards,
+            'total' => $totalReceived,
+            'error' => false,
+            'errorText' => '',
+            'additionalErrors' => null
+        ];
     }
 
     /**
      * @param array $cards
      * @return array
-     * @throws AuthenticationException
-     * @throws GuzzleException
-     * @throws RateLimitException
-     * @throws WildberriesApiException
      */
     public function updateCards(array $cards): array
     {
@@ -152,10 +186,6 @@ class WildberriesApiService
     /**
      * @param int $nmId
      * @return array
-     * @throws AuthenticationException
-     * @throws GuzzleException
-     * @throws RateLimitException
-     * @throws WildberriesApiException
      */
     public function getMediaFiles(int $nmId): array
     {
@@ -168,10 +198,6 @@ class WildberriesApiService
 
     /**
      * @return array
-     * @throws AuthenticationException
-     * @throws GuzzleException
-     * @throws RateLimitException
-     * @throws WildberriesApiException
      */
     public function getWarehouses(): array
     {
@@ -181,10 +207,6 @@ class WildberriesApiService
     /**
      * @param array $params
      * @return array
-     * @throws AuthenticationException
-     * @throws GuzzleException
-     * @throws RateLimitException
-     * @throws WildberriesApiException
      */
     public function getOrders(array $params = []): array
     {
@@ -194,10 +216,6 @@ class WildberriesApiService
     /**
      * @param array $params
      * @return array
-     * @throws AuthenticationException
-     * @throws GuzzleException
-     * @throws RateLimitException
-     * @throws WildberriesApiException
      */
     public function getStocks(array $params = []): array
     {
@@ -207,10 +225,6 @@ class WildberriesApiService
     /**
      * @param array $stocks
      * @return array
-     * @throws AuthenticationException
-     * @throws GuzzleException
-     * @throws RateLimitException
-     * @throws WildberriesApiException
      */
     public function updateStocks(array $stocks): array
     {
@@ -224,10 +238,6 @@ class WildberriesApiService
     /**
      * @param array $params
      * @return array
-     * @throws AuthenticationException
-     * @throws GuzzleException
-     * @throws RateLimitException
-     * @throws WildberriesApiException
      */
     public function getIncomes(array $params = []): array
     {
@@ -237,10 +247,6 @@ class WildberriesApiService
     /**
      * @param array $params
      * @return array
-     * @throws AuthenticationException
-     * @throws GuzzleException
-     * @throws RateLimitException
-     * @throws WildberriesApiException
      */
     public function getSales(array $params = []): array
     {
@@ -250,10 +256,6 @@ class WildberriesApiService
     /**
      * @param array $params
      * @return array
-     * @throws AuthenticationException
-     * @throws GuzzleException
-     * @throws RateLimitException
-     * @throws WildberriesApiException
      */
     public function getStockStatistics(array $params = []): array
     {
@@ -266,10 +268,6 @@ class WildberriesApiService
 
     /**
      * @return array
-     * @throws AuthenticationException
-     * @throws GuzzleException
-     * @throws RateLimitException
-     * @throws WildberriesApiException
      */
     public function getAdvertCampaigns(): array
     {
@@ -283,10 +281,6 @@ class WildberriesApiService
     /**
      * @param array $params
      * @return array
-     * @throws AuthenticationException
-     * @throws GuzzleException
-     * @throws RateLimitException
-     * @throws WildberriesApiException
      */
     public function getFeedbacks(array $params = []): array
     {
@@ -300,10 +294,6 @@ class WildberriesApiService
     /**
      * @param array $params
      * @return array
-     * @throws AuthenticationException
-     * @throws GuzzleException
-     * @throws RateLimitException
-     * @throws WildberriesApiException
      */
     public function getFinanceReports(array $params = []): array
     {
