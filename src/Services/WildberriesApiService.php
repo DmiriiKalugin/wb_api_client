@@ -3,6 +3,7 @@
 namespace DmitrijKalugin\WildberriesApiClient\Services;
 
 use DmitrijKalugin\WildberriesApiClient\Contracts\WildberriesClientInterface;
+use Exception;
 
 class WildberriesApiService
 {
@@ -120,9 +121,11 @@ class WildberriesApiService
      *
      * @param array $settings Настройки запроса включая cursor и filter
      * @param bool $getAllPages Получить все страницы автоматически (по умолчанию false)
+     * @param array $rateLimitOptions Настройки для обработки rate limit
      * @return array
+     * @throws Exception
      */
-    public function getCards(array $settings = [], bool $getAllPages = false): array
+    public function getCards(array $settings = [], bool $getAllPages = false, array $rateLimitOptions = []): array
     {
         $defaultSettings = [
             'cursor' => [
@@ -139,19 +142,38 @@ class WildberriesApiService
             'settings' => $requestSettings
         ];
 
+        $defaultRateLimitOptions = [
+            'max_retries' => 3,
+            'base_delay' => 1,
+            'request_delay' => 1,
+            'use_exponential_backoff' => true
+        ];
+        
+        $rateLimitConfig = array_merge($defaultRateLimitOptions, $rateLimitOptions);
+
         if (!$getAllPages) {
-            return $this->client->requestToService('content', 'POST', '/content/v2/get/cards/list', ['json' => $payload]);
+            return $this->makeRequestWithRetry('content', 'POST', '/content/v2/get/cards/list', ['json' => $payload], $rateLimitConfig);
         }
 
         $allCards = [];
         $totalReceived = 0;
 
         do {
-            $response = $this->client->requestToService('content', 'POST', '/content/v2/get/cards/list', ['json' => $payload]);
+            if ($totalReceived > 0) {
+                sleep($rateLimitConfig['request_delay']);
+            }
 
-            if (isset($response['data']) && is_array($response['data'])) {
-                $allCards = array_merge($allCards, $response['data']);
-                $totalReceived += count($response['data']);
+            $response = $this->makeRequestWithRetry('content', 'POST', '/content/v2/get/cards/list', ['json' => $payload], $rateLimitConfig);
+
+            $currentBatchSize = 0;
+            if (isset($response['cards']) && is_array($response['cards'])) {
+                $allCards = array_merge($allCards, $response['cards']);
+                $currentBatchSize = count($response['cards']);
+                $totalReceived += $currentBatchSize;
+            }
+
+            if ($currentBatchSize < $requestSettings['cursor']['limit']) {
+                break;
             }
 
             if (isset($response['cursor']['updatedAt']) && isset($response['cursor']['nmID'])) {
@@ -161,9 +183,7 @@ class WildberriesApiService
                 break;
             }
 
-            $total = $response['total'] ?? 0;
-
-        } while ($total >= $requestSettings['cursor']['limit']);
+        } while (true);
 
         return [
             'data' => $allCards,
@@ -298,5 +318,45 @@ class WildberriesApiService
     public function getFinanceReports(array $params = []): array
     {
         return $this->client->requestToService('finance', 'GET', '/api/v1/supplier/reportDetailByPeriod', ['query' => $params]);
+    }
+
+    /**
+     * Выполняет запрос с автоматическими повторными попытками при rate limit
+     *
+     * @param string $service
+     * @param string $method
+     * @param string $endpoint
+     * @param array $options
+     * @param array $rateLimitConfig
+     * @return array
+     * @throws Exception
+     */
+    protected function makeRequestWithRetry(string $service, string $method, string $endpoint, array $options = [], array $rateLimitConfig = []): array
+    {
+        $maxRetries = $rateLimitConfig['max_retries'] ?? 3;
+        $baseDelay = $rateLimitConfig['base_delay'] ?? 1;
+        $useExponentialBackoff = $rateLimitConfig['use_exponential_backoff'] ?? true;
+        $retryCount = 0;
+
+        while (true) {
+            try {
+                return $this->client->requestToService($service, $method, $endpoint, $options);
+            } catch (\DmitrijKalugin\WildberriesApiClient\Exceptions\RateLimitException $e) {
+                $retryCount++;
+                
+                if ($retryCount > $maxRetries) {
+                    throw $e; // Превышено максимальное количество попыток
+                }
+
+                // Вычисляем задержку
+                if ($useExponentialBackoff) {
+                    $delay = $baseDelay * pow(2, $retryCount - 1); // 1s, 2s, 4s, 8s...
+                } else {
+                    $delay = $baseDelay; // Фиксированная задержка
+                }
+
+                sleep($delay);
+            }
+        }
     }
 }
