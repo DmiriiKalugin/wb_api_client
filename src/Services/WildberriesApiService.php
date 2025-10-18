@@ -308,6 +308,15 @@ class WildberriesApiService
     }
 
     /**
+     * @param array $prices
+     * @return array
+     */
+    public function updatePrices(array $prices): array
+    {
+        return $this->client->requestToService('marketplace', 'POST', '/api/v3/prices', ['json' => ['data' => $prices]]);
+    }
+
+    /**
      * Finance API Methods
      */
 
