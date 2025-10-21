@@ -330,6 +330,41 @@ class WildberriesApiService
     }
 
     /**
+     * Tariffs API Methods
+     */
+
+    /**
+     * Получение комиссий по категориям товаров
+     *
+     * @param string $locale Язык ответа (ru, en, zh). По умолчанию ru
+     * @return array
+     */
+    public function getTariffsCommission(string $locale = 'ru'): array
+    {
+        return $this->client->requestToService('tariffs', 'GET', '/api/v1/tariffs/commission', [
+            'query' => ['locale' => $locale]
+        ]);
+    }
+
+    /**
+     * Получение тарифов для коробов (доставка, хранение)
+     *
+     * @param string|null $date Дата в формате YYYY-MM-DD. Если не указана, возвращает актуальные тарифы
+     * @return array
+     */
+    public function getTariffsBox(?string $date = null): array
+    {
+        $params = [];
+        if ($date !== null) {
+            $params['date'] = $date;
+        }
+
+        return $this->client->requestToService('tariffs', 'GET', '/api/v1/tariffs/box', [
+            'query' => $params
+        ]);
+    }
+
+    /**
      * Выполняет запрос с автоматическими повторными попытками при rate limit
      *
      * @param string $service

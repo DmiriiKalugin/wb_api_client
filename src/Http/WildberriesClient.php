@@ -26,6 +26,7 @@ class WildberriesClient implements WildberriesClientInterface
         'returns' => 'https://returns-api.wildberries.ru',
         'documents' => 'https://documents-api.wildberries.ru',
         'finance' => 'https://finance-api.wildberries.ru',
+        'tariffs' => 'https://common-api.wildberries.ru',
     ];
 
     /**
@@ -167,18 +168,18 @@ class WildberriesClient implements WildberriesClientInterface
             
             return $body ? json_decode($body, true) : [];
         } catch (RequestException $e) {
-            $this->handleRequestException($e);
+            throw $this->handleRequestException($e);
         }
     }
 
     /**
      * @param RequestException $e
-     * @return void
+     * @return AuthenticationException|RateLimitException|WildberriesApiException
      * @throws AuthenticationException
      * @throws RateLimitException
      * @throws WildberriesApiException
      */
-    protected function handleRequestException(RequestException $e): void
+    protected function handleRequestException(RequestException $e): AuthenticationException|RateLimitException|WildberriesApiException
     {
         $response = $e->getResponse();
         $statusCode = $response ? $response->getStatusCode() : 0;
