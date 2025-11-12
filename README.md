@@ -125,11 +125,19 @@ $stocks = WildberriesApiService::getStocks([
 ]);
 
 // Обновление остатков
-$stocksUpdate = WildberriesApiService::updateStocks([
+$warehouseId = 123; // ID склада
+$stocksUpdate = WildberriesApiService::updateStocks($warehouseId, [
     [
         'sku' => 'SKU123',
-        'amount' => 10,
-        'warehouseId' => 123
+        'amount' => 10
+    ]
+]);
+
+// Обновление цен
+$pricesUpdate = WildberriesApiService::updatePrices([
+    [
+        'nmId' => 12345678,
+        'price' => 1999
     ]
 ]);
 ```
@@ -293,20 +301,19 @@ use DmitrijKalugin\WildberriesApiClient\Services\WildberriesApiService;
 
 class StockUpdater
 {
-    public function updateStocks(array $products)
+    public function updateStocks(int $warehouseId, array $products)
     {
         $stocks = [];
         
         foreach ($products as $product) {
             $stocks[] = [
                 'sku' => $product['sku'],
-                'amount' => $product['quantity'],
-                'warehouseId' => $product['warehouse_id']
+                'amount' => $product['quantity']
             ];
         }
         
         try {
-            $result = WildberriesApiService::updateStocks($stocks);
+            $result = WildberriesApiService::updateStocks($warehouseId, $stocks);
             logger()->info('Stocks updated successfully', $result);
         } catch (\Exception $e) {
             logger()->error('Failed to update stocks: ' . $e->getMessage());

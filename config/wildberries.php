@@ -53,6 +53,7 @@ return [
             'returns' => 'https://returns-api.wildberries.ru',
             'documents' => 'https://documents-api.wildberries.ru',
             'finance' => 'https://finance-api.wildberries.ru',
+            'discounts-prices' => 'https://discounts-prices-api.wildberries.ru',
         ],
         'sandbox' => [
             'common' => 'https://common-api-sandbox.wildberries.ru',
@@ -66,6 +67,7 @@ return [
             'returns' => 'https://returns-api-sandbox.wildberries.ru',
             'documents' => 'https://documents-api-sandbox.wildberries.ru',
             'finance' => 'https://finance-api-sandbox.wildberries.ru',
+            'discounts-prices' => 'https://discounts-prices-api-sandbox.wildberries.ru',
         ],
     ],
 

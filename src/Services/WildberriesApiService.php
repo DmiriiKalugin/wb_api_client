@@ -243,12 +243,15 @@ class WildberriesApiService
     }
 
     /**
-     * @param array $stocks
+     * Обновление остатков товаров на складе
+     *
+     * @param int $warehouseId Идентификатор склада
+     * @param array $stocks Массив остатков для обновления
      * @return array
      */
-    public function updateStocks(array $stocks): array
+    public function updateStocks(int $warehouseId, array $stocks): array
     {
-        return $this->client->requestToService('marketplace', 'PUT', '/api/v3/stocks', ['json' => ['stocks' => $stocks]]);
+        return $this->client->requestToService('marketplace', 'PUT', "/api/v3/stocks/{$warehouseId}", ['json' => $stocks]);
     }
 
     /**
@@ -308,12 +311,14 @@ class WildberriesApiService
     }
 
     /**
-     * @param array $prices
+     * Обновление цен товаров
+     *
+     * @param array $prices Массив цен для обновления
      * @return array
      */
     public function updatePrices(array $prices): array
     {
-        return $this->client->requestToService('marketplace', 'POST', '/api/v3/prices', ['json' => ['data' => $prices]]);
+        return $this->client->requestToService('discounts-prices', 'POST', '/api/v2/upload/task', ['json' => $prices]);
     }
 
     /**

@@ -27,6 +27,7 @@ class WildberriesClient implements WildberriesClientInterface
         'documents' => 'https://documents-api.wildberries.ru',
         'finance' => 'https://finance-api.wildberries.ru',
         'tariffs' => 'https://common-api.wildberries.ru',
+        'discounts-prices' => 'https://discounts-prices-api.wildberries.ru',
     ];
 
     /**
