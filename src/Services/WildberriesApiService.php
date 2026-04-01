@@ -234,12 +234,27 @@ class WildberriesApiService
     }
 
     /**
-     * @param array $params
+     * Получение остатков товаров на складе продавца
+     *
+     * @param int $warehouseId Идентификатор склада продавца
+     * @param array $chrtIds Массив ID размеров товаров
      * @return array
      */
-    public function getStocks(array $params = []): array
+    public function getStocks(int $warehouseId, array $chrtIds): array
     {
-        return $this->client->requestToService('marketplace', 'GET', '/api/v3/stocks', ['query' => $params]);
+        return $this->client->requestToService('marketplace', 'POST', "/api/v3/stocks/{$warehouseId}", ['json' => ['chrtIds' => $chrtIds]]);
+    }
+
+    /**
+     * Удаление остатков товаров на складе продавца
+     *
+     * @param int $warehouseId Идентификатор склада продавца
+     * @param array $chrtIds Массив ID размеров товаров
+     * @return array
+     */
+    public function deleteStocks(int $warehouseId, array $chrtIds): array
+    {
+        return $this->client->requestToService('marketplace', 'DELETE', "/api/v3/stocks/{$warehouseId}", ['json' => ['chrtIds' => $chrtIds]]);
     }
 
     /**
