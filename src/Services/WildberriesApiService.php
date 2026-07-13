@@ -215,14 +215,14 @@ class WildberriesApiService
     }
 
     /**
-     * Генерация баркодов для карточек товаров
+     * Генерация баркодов
      *
-     * @param array $nmIDs Массив идентификаторов номенклатур (nmID), для которых нужно сгенерировать баркоды
+     * @param int $count Количество баркодов для генерации
      * @return array
      */
-    public function generateBarcodes(array $nmIDs): array
+    public function generateBarcodes(int $count): array
     {
-        return $this->client->requestToService('content', 'POST', '/content/v2/barcodes', ['json' => ['nmIDs' => $nmIDs]]);
+        return $this->client->requestToService('content', 'POST', '/content/v2/barcodes', ['json' => ['count' => $count]]);
     }
 
     /**
