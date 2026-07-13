@@ -204,6 +204,17 @@ class WildberriesApiService
     }
 
     /**
+     * Создание карточек товаров
+     *
+     * @param array $cards Массив карточек для создания
+     * @return array
+     */
+    public function createCards(array $cards): array
+    {
+        return $this->client->requestToService('content', 'POST', '/content/v2/cards/upload', ['json' => $cards]);
+    }
+
+    /**
      * @param int $nmId
      * @return array
      */

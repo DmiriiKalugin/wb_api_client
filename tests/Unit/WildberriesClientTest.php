@@ -5,6 +5,8 @@ namespace DmitrijKalugin\WildberriesApiClient\Tests\Unit;
 use DmitrijKalugin\WildberriesApiClient\Tests\TestCase;
 use DmitrijKalugin\WildberriesApiClient\Http\WildberriesClient;
 use DmitrijKalugin\WildberriesApiClient\Exceptions\AuthenticationException;
+use DmitrijKalugin\WildberriesApiClient\Services\WildberriesApiService;
+use DmitrijKalugin\WildberriesApiClient\Contracts\WildberriesClientInterface;
 
 class WildberriesClientTest extends TestCase
 {
@@ -50,8 +52,40 @@ class WildberriesClientTest extends TestCase
     public function test_request_without_token_throws_exception(): void
     {
         $this->expectException(AuthenticationException::class);
-        
+
         $client = new WildberriesClient();
         $client->get('/test');
+    }
+
+    public function test_create_cards_delegates_to_client(): void
+    {
+        $testCards = [
+            [
+                'subjectID' => 105,
+                'variants' => [
+                    [
+                        'vendorCode' => 'ART-001',
+                        'brand' => 'TestBrand',
+                        'title' => 'Test Product',
+                    ],
+                ],
+            ],
+        ];
+
+        $mockClient = $this->createMock(WildberriesClientInterface::class);
+        $mockClient->expects($this->once())
+            ->method('requestToService')
+            ->with(
+                'content',
+                'POST',
+                '/content/v2/cards/upload',
+                ['json' => $testCards]
+            )
+            ->willReturn(['status' => 'ok']);
+
+        $service = new WildberriesApiService($mockClient);
+        $result = $service->createCards($testCards);
+
+        $this->assertEquals(['status' => 'ok'], $result);
     }
 }

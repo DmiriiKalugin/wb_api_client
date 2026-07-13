@@ -94,6 +94,21 @@ $cards = WildberriesApiService::getCards([
     'offset' => 0
 ]);
 
+// Создание карточек товаров
+$createResult = WildberriesApiService::createCards([
+    [
+        'subjectID' => 105,
+        'variants' => [
+            [
+                'vendorCode' => 'ART-001',
+                'brand' => 'MyBrand',
+                'title' => 'Название товара',
+                'description' => 'Описание товара',
+            ],
+        ],
+    ],
+]);
+
 // Обновление карточек товаров
 $updateResult = WildberriesApiService::updateCards([
     [
