@@ -88,4 +88,25 @@ class WildberriesClientTest extends TestCase
 
         $this->assertEquals(['status' => 'ok'], $result);
     }
+
+    public function test_generate_barcodes_delegates_to_client(): void
+    {
+        $testNmIDs = [123456, 789012, 345678];
+
+        $mockClient = $this->createMock(WildberriesClientInterface::class);
+        $mockClient->expects($this->once())
+            ->method('requestToService')
+            ->with(
+                'content',
+                'POST',
+                '/content/v2/barcodes',
+                ['json' => ['nmIDs' => $testNmIDs]]
+            )
+            ->willReturn(['status' => 'ok', 'data' => []]);
+
+        $service = new WildberriesApiService($mockClient);
+        $result = $service->generateBarcodes($testNmIDs);
+
+        $this->assertEquals(['status' => 'ok', 'data' => []], $result);
+    }
 }
